@@ -1,9 +1,9 @@
-const createAdmin = async() => {
-    return {
-        message: "Admin Created"
-    }
+const createAdmin = async () => {
+  return {
+    message: "Admin Created",
+  };
 };
 
 export const userService = {
-    createAdmin
-}
+  createAdmin,
+};
