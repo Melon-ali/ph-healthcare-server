@@ -1,13 +1,21 @@
 import { Request, Response } from "express";
-import { adminService } from "./admin.service";
+import { AdminService } from "./admin.service";
 
 const getAllFromDB = async (req: Request, res: Response) => {
-  const result = await adminService.getAllFromDB();
-  res.status(200).json({
-    success: true,
-    message: "Admin Data Fetched",
-    data: result,
-  });
+  try {
+    const result = await AdminService.getAllFromDB(req.query);
+    res.status(200).json({
+      success: true,
+      message: "Admin Data Fetched",
+      data: result,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error?.name || "Something Went Wrong",
+      error: error,
+    });
+  }
 };
 
 export const AdminController = {
