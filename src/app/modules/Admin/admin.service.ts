@@ -6,10 +6,10 @@ import prisma from "../../../shared/prisma";
 const getAllFromDB = async (params: any, options: any) => {
   const { page, limit, skip } = paginationHelper.calculatePagination(options);
   const { searchTerm, ...filterData } = params;
-  const andCondition: Prisma.AdminWhereInput[] = [];
+  const andConditions: Prisma.AdminWhereInput[] = [];
 
   if (params.searchTerm) {
-    andCondition.push({
+    andConditions.push({
       OR: adminSearchAbleFields.map((field) => ({
         [field]: {
           contains: params.searchTerm,
@@ -20,7 +20,7 @@ const getAllFromDB = async (params: any, options: any) => {
   }
 
   if (Object.keys(filterData).length > 0) {
-    andCondition.push({
+    andConditions.push({
       AND: Object.keys(filterData).map((key) => ({
         [key]: {
           equals: filterData[key],
@@ -29,9 +29,13 @@ const getAllFromDB = async (params: any, options: any) => {
     });
   }
 
-  console.dir(andCondition, { depth: "infinity" });
+  andConditions.push({
+    isDeleted: false,
+  });
 
-  const whereConditions: Prisma.AdminWhereInput = { AND: andCondition };
+  // console.dir(andCondition, { depth: "infinity" });
+
+  const whereConditions: Prisma.AdminWhereInput = { AND: andConditions };
 
   const result = await prisma.admin.findMany({
     where: whereConditions,
@@ -61,20 +65,25 @@ const getAllFromDB = async (params: any, options: any) => {
   };
 };
 
-const getByIdFromDb = async (id: string) => {
+const getByIdFromDb = async (id: string): Promise<Admin | null> => {
   const result = await prisma.admin.findUnique({
     where: {
       id: id,
+      isDeleted: false,
     },
   });
 
   return result;
 };
 
-const updateIntoDB = async (id: string, data: Partial<Admin>) => {
+const updateIntoDB = async (
+  id: string,
+  data: Partial<Admin>
+): Promise<Admin | null> => {
   await prisma.admin.findFirstOrThrow({
     where: {
       id,
+      isDeleted: false,
     },
   });
 
@@ -88,7 +97,7 @@ const updateIntoDB = async (id: string, data: Partial<Admin>) => {
   return result;
 };
 
-const deleteFromDB = async (id: string) => {
+const deleteFromDB = async (id: string): Promise<Admin | null> => {
   const result = await prisma.$transaction(async (transactionClient) => {
     const adminDeletedData = await transactionClient.admin.delete({
       where: {
@@ -96,7 +105,7 @@ const deleteFromDB = async (id: string) => {
       },
     });
 
-    const userDeletedData = await transactionClient.user.delete({
+    await transactionClient.user.delete({
       where: {
         email: adminDeletedData.email,
       },
@@ -108,7 +117,14 @@ const deleteFromDB = async (id: string) => {
   return result;
 };
 
-const softDeleteFromDB = async (id: string) => {
+const softDeleteFromDB = async (id: string): Promise<Admin | null> => {
+  await prisma.admin.findFirstOrThrow({
+    where: {
+      id,
+      isDeleted: false,
+    },
+  });
+
   const result = await prisma.$transaction(async (transactionClient) => {
     const adminDeletedData = await transactionClient.admin.update({
       where: {
@@ -119,7 +135,7 @@ const softDeleteFromDB = async (id: string) => {
       },
     });
 
-    const userDeletedData = await transactionClient.user.update({
+    await transactionClient.user.update({
       where: {
         email: adminDeletedData.email,
       },
