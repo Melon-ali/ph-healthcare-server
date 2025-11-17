@@ -4,8 +4,9 @@ import { AdminController } from "./admin.controller";
 const router = express.Router();
 
 router.get("/", AdminController.getAllFromDB);
-router.get('/:id', AdminController.getByIdFromDb)
-router.patch('/:id', AdminController.updateIntoDB)
-router.delete('/:id', AdminController.deleteFromDB)
+router.get("/:id", AdminController.getByIdFromDb);
+router.patch("/:id", AdminController.updateIntoDB);
+router.delete("/:id", AdminController.deleteFromDB);
+router.delete("/soft/:id", AdminController.softDeleteFromDB);
 
 export const adminRouter = router;
