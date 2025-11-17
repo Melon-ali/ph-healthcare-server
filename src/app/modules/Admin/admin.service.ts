@@ -3,7 +3,6 @@ import { adminSearchAbleFields } from "./admin.constant";
 import { paginationHelper } from "../../../helpars/paginationHelper";
 import prisma from "../../../shared/prisma";
 
-
 const getAllFromDB = async (params: any, options: any) => {
   const { page, limit, skip } = paginationHelper.calculatePagination(options);
   const { searchTerm, ...filterData } = params;
@@ -48,7 +47,18 @@ const getAllFromDB = async (params: any, options: any) => {
           },
   });
 
-  return result;
+  const total = await prisma.admin.count({
+    where: whereConditions,
+  });
+
+  return {
+    meta: {
+      page,
+      limit,
+      total,
+    },
+    data: result,
+  };
 };
 
 export const AdminService = {
