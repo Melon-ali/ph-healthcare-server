@@ -33,11 +33,11 @@ const refreshToken = catchAsync(async (req: Request, res: Response) => {
     statusCode: httpStatus.OK,
     success: true,
     message: "User logged in successfully",
-    data: null
+    data: result,
   });
 });
 
 export const AuthController = {
   loginUser,
-  refreshToken
+  refreshToken,
 };
