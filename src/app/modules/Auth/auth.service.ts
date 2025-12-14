@@ -2,7 +2,8 @@ import { UserStatus } from "@prisma/client";
 import { jwtHelpers } from "../../../helpars/jwtHelpers";
 import prisma from "../../../shared/prisma";
 import * as bcypt from "bcrypt";
-import jwt, { JwtPayload } from "jsonwebtoken";
+import jwt, { JwtPayload, Secret } from "jsonwebtoken";
+import config from "../../config";
 
 const loginUser = async (payload: { email: string; password: string }) => {
   const uesrData = await prisma.user.findFirstOrThrow({
@@ -26,8 +27,8 @@ const loginUser = async (payload: { email: string; password: string }) => {
       email: uesrData.email,
       role: uesrData.role,
     },
-    "abcdefg",
-    "5m"
+    config.jwt.jwt_secret as Secret,
+    config.jwt.expires_in as string
   );
 
   const refreshToken = jwtHelpers.generateToken(
@@ -35,8 +36,8 @@ const loginUser = async (payload: { email: string; password: string }) => {
       email: uesrData.email,
       role: uesrData.role,
     },
-    "abcdefgh",
-    "30d"
+    config.jwt.jwt_secret as Secret,
+    config.jwt.expires_in as string
   );
 
   return {
@@ -66,8 +67,8 @@ const refreshToken = async (token: string) => {
       email: uesrData.email,
       role: uesrData.role,
     },
-    "abcdefg",
-    "5m"
+    config.jwt.jwt_secret as Secret,
+    config.jwt.expires_in as string
   );
 
   return {
