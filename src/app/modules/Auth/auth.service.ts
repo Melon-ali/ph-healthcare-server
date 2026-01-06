@@ -4,12 +4,13 @@ import prisma from "../../../shared/prisma";
 import * as bcrypt from "bcrypt";
 import jwt, { JwtPayload, Secret } from "jsonwebtoken";
 import config from "../../config";
+import emailSender from "./emailSender";
 
 const loginUser = async (payload: { email: string; password: string }) => {
   const userData = await prisma.user.findFirstOrThrow({
     where: {
       email: payload.email,
-      status: UserStatus.ACTIVE
+      status: UserStatus.ACTIVE,
     },
   });
 
@@ -51,14 +52,17 @@ const refreshToken = async (token: string) => {
   let decodedData;
 
   try {
-    decodedData = jwtHelpers.verifyToken(token, config.jwt.jwt_secret as Secret);
+    decodedData = jwtHelpers.verifyToken(
+      token,
+      config.jwt.jwt_secret as Secret
+    );
   } catch (err) {
     throw new Error("You are not authorized");
   }
   const uesrData = await prisma.user.findUniqueOrThrow({
     where: {
       email: decodedData.email,
-      status: UserStatus.ACTIVE
+      status: UserStatus.ACTIVE,
     },
   });
 
@@ -78,11 +82,11 @@ const refreshToken = async (token: string) => {
   };
 };
 
-const changePassword = async (user : any, payload : any) => {
+const changePassword = async (user: any, payload: any) => {
   const userData = await prisma.user.findUniqueOrThrow({
     where: {
       email: user.email,
-      status: UserStatus.ACTIVE
+      status: UserStatus.ACTIVE,
     },
   });
 
@@ -95,29 +99,29 @@ const changePassword = async (user : any, payload : any) => {
     throw new Error("Password is incorrect");
   }
   const hashedPassword: string = await bcrypt.hash(payload.newPassword, 12);
-  
-    console.log({hashedPassword});
 
-    await prisma.user.update({
-      where: {
-        email: userData.email,        
-      },
-      data: {
-        password: hashedPassword,
-        needPasswordChange: false,
-      },
-    });
+  console.log({ hashedPassword });
 
-    return {
-      message: "Password changed successfully",
-    }
+  await prisma.user.update({
+    where: {
+      email: userData.email,
+    },
+    data: {
+      password: hashedPassword,
+      needPasswordChange: false,
+    },
+  });
+
+  return {
+    message: "Password changed successfully",
+  };
 };
 
 const forgotPassword = async (payload: { email: string }) => {
   const userData = await prisma.user.findUniqueOrThrow({
-    where: {    
+    where: {
       email: payload.email,
-      status: UserStatus.ACTIVE
+      status: UserStatus.ACTIVE,
     },
   });
 
@@ -132,9 +136,24 @@ const forgotPassword = async (payload: { email: string }) => {
 
   console.log(resetPassToken);
 
-  const resetLink = config.reset_pass_link + `?userId=${userData.id}&token=${resetPassToken}`;
-
-  console.log(resetLink)
+  const resetPassLink =
+    config.reset_pass_link + `?userId=${userData.id}&token=${resetPassToken}`;
+  await emailSender(
+    userData.email,
+    `
+    <div>
+      <p>Dear User,</p>
+      <p>Your Password Reset Link
+      <a href="${resetPassLink}">
+        <button>
+          Reset Password
+        </button>
+      </a>
+      </p>
+    </div>
+    `
+  );
+  console.log(resetPassLink);
 };
 
 export const AuthServices = {
