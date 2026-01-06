@@ -1,4 +1,5 @@
 import nodemailer from "nodemailer";
+import config from "../../config";
 
 // Create a transporter using Ethereal test credentials.
 // For production, replace with your actual SMTP server details.
@@ -7,8 +8,8 @@ const transporter = nodemailer.createTransport({
   port: 587,
   secure: false, // Use true for port 465, false for port 587
   auth: {
-    user: "maddison53@ethereal.email",
-    pass: "jn7jnAPss4f63QBp6D",
+    user: config.emailSender.email,
+    pass: config.emailSender.app_password,
   },
 });
 
