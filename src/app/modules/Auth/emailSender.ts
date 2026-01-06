@@ -13,6 +13,9 @@ const emailSender = async(
       user: config.emailSender.email,
       pass: config.emailSender.app_password,
     },
+    tls: {
+      rejectUnauthorized: false,
+    },
   });
 
   
