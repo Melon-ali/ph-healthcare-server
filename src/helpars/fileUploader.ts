@@ -1,6 +1,6 @@
 import multer from "multer";
 import path from "path";
-
+import fs from "fs";
 import { v2 as cloudinary } from "cloudinary";
 
 // Configuration
@@ -31,6 +31,7 @@ const uploadToCloudinary = async (file: any) => {
         public_id: file.originalname,
       },
       (error, result) => {
+        fs.unlinkSync(file.path); // Delete the file from local uploads folder after uploading to Cloudinary
         if (error) {
           reject(error);
         } else {
