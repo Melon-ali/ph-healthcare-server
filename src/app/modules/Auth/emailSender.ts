@@ -125,3 +125,9 @@ export default emailSender;
 // ​Synchronous = ইঞ্জিন নিজে কাজ করছে এবং কাজ শেষ না হওয়া পর্যন্ত অন্য কিছু করছে না।
 // 
 // Asynchronous = ইঞ্জিন কাজটা অন্যকে বুঝিয়ে দিয়ে নিজে পরবর্তী কাজে চলে যাচ্ছে।
+
+// what is Radis?
+// Redis হচ্ছে একটি ওপেন সোর্স, ইন-মেমরি ডেটা স্ট্রাকচার স্টোর যা ডেটা ক্যাশিং, সেশন ম্যানেজমেন্ট, রিয়েল-টাইম অ্যানালিটিক্স এবং মেসেজ ব্রোকারিংয়ের মতো বিভিন্ন অ্যাপ্লিকেশনের জন্য ব্যবহৃত হয়। এটি কী-ভ্যালু পেয়ার, হ্যাশ, লিস্ট, সেট এবং সোর্টেড সেট সহ বিভিন্ন ডেটা স্ট্রাকচার সমর্থন করে। Redis এর উচ্চ কর্মক্ষমতা এবং নমনীয়তা এটিকে দ্রুত ডেটা অ্যাক্সেস এবং প্রসেসিংয়ের জন্য আদর্শ করে তোলে। 
+
+// english: Redis is an open-source, in-memory data structure store used for various applications such as data caching, session management, real-time analytics, and message brokering. It supports various data structures including key-value pairs, hashes, lists, sets, and sorted sets. Redis's high performance and flexibility make it ideal for fast data access and processing.
+
