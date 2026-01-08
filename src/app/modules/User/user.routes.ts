@@ -11,7 +11,7 @@ const router = express.Router();
 router.post(
   "/",
   auth(UserRole.ADMIN, UserRole.SUPER_ADMIN),
-  fileUploader.upload.single("file"),
+  fileUploader.uploadToCloudinary("file"),
   userController.createAdmin
 );
 

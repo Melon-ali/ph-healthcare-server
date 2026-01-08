@@ -21,20 +21,27 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-const uploadToCloudinary = async (file: string) => {
-// Upload an image
-cloudinary.uploader.upload(
-  "https://res.cloudinary.com/demo/image/upload/getting-started/shoes.jpg",
-  {
-    public_id: "shoes",
-  },
-  function (error, result) {
-    console.log(result);
-  }
-);
+const uploadToCloudinary = async (file: any) => {
+  console.log(file);
+  // Upload an image
+  return new Promise((resolve, reject) => {
+    cloudinary.uploader.upload(
+      file.path,
+      {
+        public_id: file.originalname,
+      },
+      (error, result) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(result);
+        }
+      }
+    );
+  });
 };
 
 export const fileUploader = {
-    upload,
-    uploadToCloudinary,
-}
+  upload,
+  uploadToCloudinary,
+};
