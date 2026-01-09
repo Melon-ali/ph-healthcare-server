@@ -190,9 +190,27 @@ const getAllFromDB = async (params: any, options: IPaginationOptions) => {
   };
 };
 
+const changeProfileStatus = async (id: string, status: string) => {
+    const userData = await prisma.user.findUniqueOrThrow({
+      where: { id },
+    });
+
+    if(!userData){
+      throw new Error("User not found");
+    }
+
+    const updatedUser = await prisma.user.update({
+      where: { id },
+      data: status
+    });
+
+    return updatedUser;
+};
+
 export const userService = {
   createAdmin,
   createDoctor,
   createPatient,
   getAllFromDB,
+  changeProfileStatus,
 };
