@@ -162,6 +162,18 @@ const getAllFromDB = async (params: any, options: IPaginationOptions) => {
         : {
             createdAt: "desc",
           },
+        select: {
+          id: true,
+          email: true,
+          role: true,
+          needPasswordChange: true,
+          status: true,
+          createdAt: true,
+          updateAt: true,
+          admin: true,
+          doctor: true,
+          patient: true,
+        }
   });
 
   const total = await prisma.user.count({
