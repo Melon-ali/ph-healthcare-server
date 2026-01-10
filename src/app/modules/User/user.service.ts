@@ -8,22 +8,20 @@ import { IPaginationOptions } from "../../interfaces/pagination";
 import { paginationHelper } from "../../../helpars/paginationHelper";
 import { userSearchAbleFields } from "./user.constant";
 
-
 const createAdmin = async (req: Request): Promise<Admin> => {
-
   const file = req.file as IFile;
-  console.log(req.body)
+  console.log(req.body);
 
-  if(file){
+  if (file) {
     const uploadToCloudinary = await fileUploader.uploadToCloudinary(file);
     req.body.admin.profilePhoto = uploadToCloudinary?.secure_url;
 
-    console.log(req.body)
+    console.log(req.body);
   }
 
   const hashedPassword: string = await bcrypt.hash(req.body.password, 12);
 
-  console.log({hashedPassword});
+  console.log({ hashedPassword });
 
   const userData = {
     email: req.body.admin.email,
@@ -47,20 +45,19 @@ const createAdmin = async (req: Request): Promise<Admin> => {
 };
 
 const createDoctor = async (req: Request): Promise<Doctor> => {
-
   const file = req.file as IFile;
-  console.log(req.body)
+  console.log(req.body);
 
-  if(file){
+  if (file) {
     const uploadToCloudinary = await fileUploader.uploadToCloudinary(file);
     req.body.doctor.profilePhoto = uploadToCloudinary?.secure_url;
 
-    console.log(req.body)
+    console.log(req.body);
   }
 
   const hashedPassword: string = await bcrypt.hash(req.body.password, 12);
 
-  console.log({hashedPassword});
+  console.log({ hashedPassword });
 
   const userData = {
     email: req.body.doctor.email,
@@ -83,20 +80,19 @@ const createDoctor = async (req: Request): Promise<Doctor> => {
   return result;
 };
 const createPatient = async (req: Request): Promise<Patient> => {
-
   const file = req.file as IFile;
-  console.log(req.body)
+  console.log(req.body);
 
-  if(file){
+  if (file) {
     const uploadToCloudinary = await fileUploader.uploadToCloudinary(file);
     req.body.patient.profilePhoto = uploadToCloudinary?.secure_url;
 
-    console.log(req.body)
+    console.log(req.body);
   }
 
   const hashedPassword: string = await bcrypt.hash(req.body.password, 12);
 
-  console.log({hashedPassword});
+  console.log({ hashedPassword });
 
   const userData = {
     email: req.body.patient.email,
@@ -145,10 +141,10 @@ const getAllFromDB = async (params: any, options: IPaginationOptions) => {
     });
   }
 
-
   // console.dir(andCondition, { depth: "infinity" });
 
-  const whereConditions: Prisma.UserWhereInput = andConditions.length > 0 ? { AND: andConditions } : {};
+  const whereConditions: Prisma.UserWhereInput =
+    andConditions.length > 0 ? { AND: andConditions } : {};
 
   const result = await prisma.user.findMany({
     where: whereConditions,
@@ -162,18 +158,18 @@ const getAllFromDB = async (params: any, options: IPaginationOptions) => {
         : {
             createdAt: "desc",
           },
-        select: {
-          id: true,
-          email: true,
-          role: true,
-          needPasswordChange: true,
-          status: true,
-          createdAt: true,
-          updateAt: true,
-          admin: true,
-          doctor: true,
-          patient: true,
-        }
+    select: {
+      id: true,
+      email: true,
+      role: true,
+      needPasswordChange: true,
+      status: true,
+      createdAt: true,
+      updateAt: true,
+      admin: true,
+      doctor: true,
+      patient: true,
+    },
   });
 
   const total = await prisma.user.count({
@@ -191,20 +187,64 @@ const getAllFromDB = async (params: any, options: IPaginationOptions) => {
 };
 
 const changeProfileStatus = async (id: string, status: string) => {
-    const userData = await prisma.user.findUniqueOrThrow({
-      where: { id },
+  const userData = await prisma.user.findUniqueOrThrow({
+    where: { id },
+  });
+
+  if (!userData) {
+    throw new Error("User not found");
+  }
+
+  const updatedUser = await prisma.user.update({
+    where: { id },
+    data: status,
+  });
+
+  return updatedUser;
+};
+
+const getMyProfile = async (user) => {
+  const userInfo = await prisma.user.findUniqueOrThrow({
+    where: { email: user.email },
+    select: {
+      id: true,
+      email: true,
+      role: true,
+      needPasswordChange: true,
+      status: true,
+      createdAt: true,
+      updateAt: true,
+    },
+  });
+
+  let profileInfo;
+
+  if (userInfo.role === UserRole.SUPER_ADMIN) {
+    profileInfo = await prisma.admin.findUnique({
+      where: {
+        email: userInfo.email,
+      },
     });
-
-    if(!userData){
-      throw new Error("User not found");
-    }
-
-    const updatedUser = await prisma.user.update({
-      where: { id },
-      data: status
+  } else if (userInfo.role === UserRole.ADMIN) {
+    profileInfo = await prisma.admin.findUnique({
+      where: {
+        email: userInfo.email,
+      },
     });
-
-    return updatedUser;
+  } else if (userInfo.role === UserRole.DOCTOR) {
+    profileInfo = await prisma.admin.findUnique({
+      where: {
+        email: userInfo.email,
+      },
+    });
+  } else if (userInfo.role === UserRole.PATIENT) {
+    profileInfo = await prisma.admin.findUnique({
+      where: {
+        email: userInfo.email,
+      },
+    });
+  }
+  return { ...userInfo, ...profileInfo };
 };
 
 export const userService = {
@@ -213,4 +253,5 @@ export const userService = {
   createPatient,
   getAllFromDB,
   changeProfileStatus,
+  getMyProfile,
 };
