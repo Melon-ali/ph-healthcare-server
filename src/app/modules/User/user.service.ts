@@ -1,4 +1,11 @@
-import { Admin, Doctor, Patient, Prisma, UserRole, UserStatus } from "@prisma/client";
+import {
+  Admin,
+  Doctor,
+  Patient,
+  Prisma,
+  UserRole,
+  UserStatus,
+} from "@prisma/client";
 import * as bcrypt from "bcrypt";
 import prisma from "../../../shared/prisma";
 import { fileUploader } from "../../../helpars/fileUploader";
@@ -7,6 +14,7 @@ import { IFile } from "../../interfaces/file";
 import { IPaginationOptions } from "../../interfaces/pagination";
 import { paginationHelper } from "../../../helpars/paginationHelper";
 import { userSearchAbleFields } from "./user.constant";
+import { IAuthUser } from "../../interfaces/common";
 
 const createAdmin = async (req: Request): Promise<Admin> => {
   const file = req.file as IFile;
@@ -203,9 +211,9 @@ const changeProfileStatus = async (id: string, status: string) => {
   return updatedUser;
 };
 
-const getMyProfile = async (user) => {
+const getMyProfile = async (user: IAuthUser) => {
   const userInfo = await prisma.user.findUniqueOrThrow({
-    where: { email: user.email },
+    where: { email: user?.email },
     select: {
       id: true,
       email: true,
@@ -247,11 +255,10 @@ const getMyProfile = async (user) => {
   return { ...userInfo, ...profileInfo };
 };
 
-const updateMyProfile = async (user: any, req: Request) => {
-const userInfo = await prisma.user.findUniqueOrThrow({
-    where: { email: user.email, status: UserStatus.ACTIVE }
+const updateMyProfile = async (user: IAuthUser, req: Request) => {
+  const userInfo = await prisma.user.findUniqueOrThrow({
+    where: { email: user?.email, status: UserStatus.ACTIVE },
   });
-
 
   const file = req.file as IFile;
   if (file) {
