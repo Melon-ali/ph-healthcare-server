@@ -22,6 +22,7 @@ const createAdmin = catchAsync(async (req: Request, res: Response, next: NextFun
   }
 });
 
+
 const createDoctor = (async (req: Request, res: Response, next: NextFunction) => {
   try {
     //   console.log(req.body);

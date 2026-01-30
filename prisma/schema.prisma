@@ -84,6 +84,29 @@ model Patient {
   @@map("patients")
 }
 
+model Specialties {
+  id        String   @id @default(uuid())
+  title     String
+  icon      String
+  createdAt DateTime @default(now())
+  updateAt  DateTime @updatedAt
+
+  @@map("specialties")
+}
+
+model DoctorSpecialty {
+  id          String   @id @default(uuid())
+  doctorId    String
+  specialtyId String
+  createdAt   DateTime @default(now())
+  updateAt    DateTime @updatedAt
+
+  doctor     Doctor     @relation(fields: [doctorId], references: [id])
+  specialty  Specialties @relation(fields: [specialtyId], references: [id])
+
+  @@map("doctor_specialties")
+}
+
 enum UserRole {
   SUPER_ADMIN
   ADMIN
